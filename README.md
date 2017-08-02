@@ -163,7 +163,7 @@ Goal definition is the core of the planning and is made by the logic which, star
 
 The goal definition includes the application of all the constraints used to avoid collision, speed limits overcome and improvvise and not desired accelerations. 
 
-##### Constraints (WIP)
+##### Constraints
 
 First constraint implemented is the limit speed saturation. Every time a goal state is compueted, the target speed is compared to a *MAX_SPEED* and *MIN_SPEED* values. In case the speed computed is higher, the target speed is saturated to these 2 values. 
 
