@@ -216,7 +216,20 @@ These countermeasure appears to be very strong both in avoid collision approachi
 Once the goal status is computed, the min jerk trajectory is computed using the polinomial derivatives logic. 
 The *ComputeMinimumJerk* and *ComputeMinimumJerkPath*, computes polinomio coefficients and Frenet coordinates that are then converted in global map coordinates and sent to the simulator to be applied.
 
-## 2. Dependencies
+
+## 2. Further impementations
+
+Other vehicles behavioud prediction: in order to make the min cost state computation finer, one way will be to include a logic to predict the behaviour of other cars from the sensor fusion data. Knowing which is the most probable maneuver from cars in the other lanes, could be helpful to prevent collision and to takes decision toword min cost (or faster reaching of the target).
+
+Other lanes rear vehicle understanding: current implementation includes in the cost function the presence of a car on the back of our self driving car in other lanes. This presence is weighted only with the distance from our car. Using something smarter like also considering the speed of this car behind, could help to decide to change lane in less time.  
+
+Finest car speed adjustment for collision avoidance: one way to made the collision avoidance smarter could be to compute the speed the car should have at the end of the computed trajectory, in order to arrive to have the same speed of the car in front with a fixed buffer distance.
+
+Curve speed management: reducing a little bit the speed in the curves could help to reduce the jerk of the trajectory;
+
+Lane change refinement: when a lane change is decided, could maybe be better to increase from the start the speed if the car was following the car in front for collision avoidance.
+
+## 3. Dependencies
 
 * cmake >= 3.5
  * All OSes: [click here for installation instructions](https://cmake.org/install/)
@@ -237,16 +250,16 @@ The *ComputeMinimumJerk* and *ComputeMinimumJerkPath*, computes polinomio coeffi
     git checkout e94b6e1
     ```
 
-## 3. Basic Build Instructions
+## 4. Basic Build Instructions
 1. Clone this repo.
 2. Make a build directory: `mkdir build && cd build`
 3. Compile: `cmake .. && make`
 4. Run it: `./path_planning`.
 
-## 4. Environment details
+## 5. Environment details
 The project was developed in the Eclipse Keples environment, under the linux distribution Ubuntu 17.04.
 
-## 5. Simulator data 
+## 6. Simulator data 
 
 The simulator provide some data about the car localization and the environment itself. Below the list of information provided by the simulator:
 
@@ -283,20 +296,8 @@ the path has processed since last time.
 
 ["sensor_fusion"] A 2d vector of cars and then that car's [car's unique ID, car's x position in map coordinates, car's y position in map coordinates, car's x velocity in m/s, car's y velocity in m/s, car's s position in frenet coordinates, car's d position in frenet coordinates. 
 
-## 6. Details
+## 7. Details
 
 1. The car uses a perfect controller and will visit every (x,y) point it recieves in the list every .02 seconds. The units for the (x,y) points are in meters and the spacing of the points determines the speed of the car. The vector going from a point to the next point in the list dictates the angle of the car. Acceleration both in the tangential and normal directions is measured along with the jerk, the rate of change of total Acceleration. The (x,y) point paths that the planner recieves should not have a total acceleration that goes over 10 m/s^2, also the jerk should not go over 50 m/s^3. (NOTE: As this is BETA, these requirements might change. Also currently jerk is over a .02 second interval, it would probably be better to average total acceleration over 1 second and measure jerk from that.
 
 2. There will be some latency between the simulator running and the path planner returning a path, with optimized code usually its not very long maybe just 1-3 time steps. During this delay the simulator will continue using points that it was last given, because of this its a good idea to store the last points you have used so you can have a smooth transition. previous_path_x, and previous_path_y can be helpful for this transition since they show the last points given to the simulator controller with the processed points already removed. You would either return a path that extends this previous path or make sure to create a new path that has a smooth transition with this last path.
-
-## 6. Further impementations
-
-Other vehicles behavioud prediction: in order to make the min cost state computation finer, one way will be to include a logic to predict the behaviour of other cars from the sensor fusion data. Knowing which is the most probable maneuver from cars in the other lanes, could be helpful to prevent collision and to takes decision toword min cost (or faster reaching of the target).
-
-Other lanes rear vehicle understanding: current implementation includes in the cost function the presence of a car on the back of our self driving car in other lanes. This presence is weighted only with the distance from our car. Using something smarter like also considering the speed of this car behind, could help to decide to change lane in less time.  
-
-Finest car speed adjustment for collision avoidance: one way to made the collision avoidance smarter could be to compute the speed the car should have at the end of the computed trajectory, in order to arrive to have the same speed of the car in front with a fixed buffer distance.
-
-Curve speed management: reducing a little bit the speed in the curves could help to reduce the jerk of the trajectory;
-
-Lane change refinement: when a lane change is decided, could maybe be better to increase from the start the speed if the car was following the car in front for collision avoidance.
