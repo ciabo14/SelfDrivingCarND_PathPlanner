@@ -103,16 +103,118 @@ target_path.Y = path_y;
 ...
 ```
 
+#### Smooth trajectory integration
+
+The integration of the previous_path trajectory and the new part of the trajectory computed was one hard issue. Without using some smooth logic, the car was figure out to overcome the max acceleration. 
+
+In order to avoid this kind of unwanted behaviour, the new part of trajectory was computed starting from the "end state" of the previus path. The last path is one of the attributes of the *MainVehicle* object, and information regargin the end_s,end_speed and end_d of the path can be retreived from this object.
+
+
+```cpp
+...
+// The telemetry object is used to simplfy the code
+telemetry t {D2lane(this->car.current_path.D_end[0]),this->car.current_path.S_end[0],
+			 this->car.current_path.S_end[1]};
+
+// Compute the min cost state
+string action = ComputeMinCostState(t);
+...
+```
+
 #### Best State computation
 
+The state machine implemented includes 4 states:
 
+1. Start State;
+2. Keep Lane state (KL);
+3. Change Lane Left state (CLL);
+4. Change Lane Right state (CLR);
+
+![alt tag](https://github.com/ciabo14/SelfDrivingCarND_PathPlanner/blob/master/images/stateMachine.PNG)
+
+The transaction between the states are regulated by the cost function computation. The cost function is vary simple and basically depens on the distance between between the car, and the vehicles in the other lanes. The idea is that the distance with the other cars is stricly dependent on the speed of the main car and of the other cars. The highest is the distance, the faster I can drive; the smaller is the distance, the slower I can drive. 
+For the lane where the car is placed, the cost function only depends from the distance from the car in front.
+```cpp
+...
+if (forward_dist != 0.0)
+{
+    cost = KL_COST_FACTOR / forward_dist;
+}
+return cost;
+...
+```
+On the other hand, for other lanes, we use for cost function a combination of both the distance with the car in front and with the car behind. This let us to prevent change of line when a car behind is too close.
+
+```cpp
+...
+if (forward_dist != 0.0 && backword_dist != 0.0)
+{
+    cost = CL_COST_FACTOR_F / forward_dist + CL_COST_FACTOR_R / backword_dist;
+}
+return cost;
+...
+```
+
+State with smaller cost is returned and goal state defined accordingly.
 
 #### Target goal definition
 
+Goal definition is the core of the planning and is made by the logic which, starting from the min cost state, compute the target position, speed and acceleration in Frenet coordinates. 
+
+The goal definition includes the application of all the constraints used to avoid collision, speed limits overcome and improvvise and not desired accelerations. 
+
+##### Constraints (WIP)
+
+First constraint implemented is the limit speed saturation. Every time a goal state is compueted, the target speed is compared to a *MAX_SPEED* and *MIN_SPEED* values. In case the speed computed is higher, the target speed is saturated to these 2 values. 
+
+Therefore, if the car in front is proceeding lower then our car, and the KL is the best action, the car speed need to be reduced in order to guaranteed a fixed forward collision buffer, reaching the same speed of the car in front at maximum at the distance of the buffer.
+
+```cpp
+...
+// Limit car end_speed up and down in order to avoid to over come the road speed limit or to decelerate too much
+if (end_speed > MAX_SPEED)
+    end_speed = MAX_SPEED;
+
+if (end_speed < MIN_SPEED)
+    end_speed = MIN_SPEED;
+
+...
+double target_speed = start_speed + speed_adj;
+
+// Adjust computed target speed decreasing it in order to reach the same speed of the car in front at the distance of 
+if(target_speed > vehicle_s_speed){
+    if(rough_front_dist > FORWARD_COLLISION_BUFFER*3)
+	return target_speed;
+    else if(rough_front_dist >= FORWARD_COLLISION_BUFFER)
+    {
+	return vehicle_s_speed + (target_speed-vehicle_s_speed)* ((rough_front_dist-FORWARD_COLLISION_BUFFER)/(3*FORWARD_COLLISION_BUFFER));
+    }
+    else if(rough_front_dist < FORWARD_COLLISION_BUFFER){
+	return MIN_SPEED + (vehicle_s_speed - MIN_SPEED)* ((rough_front_dist)/(FORWARD_COLLISION_BUFFER));
+    }
+}
+return target_speed;
+...
+```
+
+Moreover, in order to avoid jurky behaviour, also acceleration is limited. In this case, instead of limiting the acceleration, we directly reduce the maximum speed variance between the start_speed and the end_speed for the goal states using an experimental coefficient.
+
+```cpp
+...
+// Compute speed adjustment starting from the current distance from the vehicle in front and the 
+// MIN/MAX car accelerations
+double speed_adj  = KL_ACC_COEFF * rough_front_dist;
+
+speed_adj = speed_adj > MAX_SPEED_VAR ? MAX_SPEED_VAR : speed_adj;
+speed_adj = speed_adj < MIN_SPEED_VAR ? MIN_SPEED_VAR : speed_adj;
+...
+```
+These countermeasure appears to be very strong both in avoid collision approaching a vehicle in front, both when a car enters the lane the car is driving with small buffer distance.
+
 #### Trajectory compuation
 
-##### Constraints
-
+Once the goal status is computed, the min jerk trajectory is computed using the polinomial derivatives logic. 
+The *ComputeMinimumJerk* and *ComputeMinimumJerkPath*, computes polinomio coefficients and Frenet coordinates that are then converted in global map coordinates and sent to the simulator to be applied.
 
 ## 2. Dependencies
 
@@ -187,4 +289,14 @@ the path has processed since last time.
 
 2. There will be some latency between the simulator running and the path planner returning a path, with optimized code usually its not very long maybe just 1-3 time steps. During this delay the simulator will continue using points that it was last given, because of this its a good idea to store the last points you have used so you can have a smooth transition. previous_path_x, and previous_path_y can be helpful for this transition since they show the last points given to the simulator controller with the processed points already removed. You would either return a path that extends this previous path or make sure to create a new path that has a smooth transition with this last path.
 
-## 6. Further impementations (WIP)
+## 6. Further impementations
+
+Other vehicles behavioud prediction: in order to make the min cost state computation finer, one way will be to include a logic to predict the behaviour of other cars from the sensor fusion data. Knowing which is the most probable maneuver from cars in the other lanes, could be helpful to prevent collision and to takes decision toword min cost (or faster reaching of the target).
+
+Other lanes rear vehicle understanding: current implementation includes in the cost function the presence of a car on the back of our self driving car in other lanes. This presence is weighted only with the distance from our car. Using something smarter like also considering the speed of this car behind, could help to decide to change lane in less time.  
+
+Finest car speed adjustment for collision avoidance: one way to made the collision avoidance smarter could be to compute the speed the car should have at the end of the computed trajectory, in order to arrive to have the same speed of the car in front with a fixed buffer distance.
+
+Curve speed management: reducing a little bit the speed in the curves could help to reduce the jerk of the trajectory;
+
+Lane change refinement: when a lane change is decided, could maybe be better to increase from the start the speed if the car was following the car in front for collision avoidance.
