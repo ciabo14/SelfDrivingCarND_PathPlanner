@@ -10,7 +10,7 @@
 #include "roadMap.h"
 
 // MAX_SPEED and MIN_SPEED are both in m/s and are defined in order to avoid speed limit overcame
-#define MAX_SPEED 20
+#define MAX_SPEED 19
 #define MIN_SPEED 10
 
 #define KL_ACC_COEFF 4.0
