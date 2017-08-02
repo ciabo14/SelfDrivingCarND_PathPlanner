@@ -10,6 +10,9 @@
 
 using namespace std;
 
+/*********************************
+* OtherVehicle object is a specialization of the vehicle class which add to the common attributes also the car vx and vy
+*********************************/
 class OtherVehicle: public Vehicle{
     
     public:

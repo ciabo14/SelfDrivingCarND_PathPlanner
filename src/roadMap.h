@@ -1,6 +1,7 @@
 #ifndef ROAD_MAP_H
 #define ROAD_MAP_H
 
+//Define the number of samples for spline refinement procedure. 
 #define SPLINE_SAMPLES 30000
 
 #include "spline.h"

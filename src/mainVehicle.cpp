@@ -8,9 +8,9 @@
 #include "mainVehicle.h"
 #include "otherVehicle.h"
 
-/**
- * Initializes Vehicle object
- */
+/*********************************
+* Initializes Main Vehicle object
+*********************************/
 MainVehicle::MainVehicle() {}
 
 MainVehicle::MainVehicle(int id, double x, double y, double s, double d, double car_yaw, double car_speed) 
@@ -28,6 +28,9 @@ void MainVehicle::UpdateYawAndSpeed(double car_yaw, double car_speed){
     this->car_speed = car_speed;
 }
 */
+/*********************************
+* Update all the vehicle parameters. Respect to the base class, this function also update the yaw and speed of the vehicle
+*********************************/
 void MainVehicle::UpdateMainVehicleStatus(double x, double y, double s, double d, double car_yaw, double car_speed)
 {
     UpdateVehicleStatus(x, y, s, d);
@@ -37,10 +40,16 @@ void MainVehicle::UpdateMainVehicleStatus(double x, double y, double s, double d
     this->car_speed = car_speed;
 }
 
+/*********************************
+* Update the set of the close vehicle for the current main vehicle, starting from the sensor_fusion data.
+*********************************/
 void MainVehicle::UpdateSensorFusion(vector<vector<double>> sensor_data){
 
     vector<int> sensedId;
+	//exectute the update only id the data from the sensor_fusion is not empty
     if(sensor_data.size()>0){
+		
+		// Update (or add the first time) all the other vehicle with data from sensor_fusion
         for(vector<double> data : sensor_data){
             int id = (int)data[0];
             sensedId.push_back(id);
@@ -53,6 +62,8 @@ void MainVehicle::UpdateSensorFusion(vector<vector<double>> sensor_data){
                 this->close_vehicles[id] = OtherVehicle(id,data[1],data[2],data[5],data[6],data[3],data[4]);
             }
         }
+		
+		// Remove vehicle from the close vehicle list if not sensed anymore.
         if(this->close_vehicles.size() > 0){
             vector<int> ids_to_be_removed;
             for (std::map<int,OtherVehicle>::iterator it=this->close_vehicles.begin(); it!=this->close_vehicles.end(); ++it){

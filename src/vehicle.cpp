@@ -21,6 +21,11 @@ Vehicle::Vehicle(int id, double x, double y, double s, double d) {
     this->d = d;
 }
 
+Vehicle::~Vehicle() {}
+
+/**************************
+ * Update vehicle parameters 
+ **************************/
 void Vehicle::UpdateVehicleStatus(double x, double y, double s, double d){
     this->last_x = this->x;
     this->last_y = this->y;
@@ -32,8 +37,9 @@ void Vehicle::UpdateVehicleStatus(double x, double y, double s, double d){
     this->d = d;
 }
 
-Vehicle::~Vehicle() {}
-
+/**************************
+ * Used to compute the current lane from the d value of the vehicle 
+ **************************/
 void Vehicle::ComputeCurrentLane(double laneWidth){
     this->current_lane = ceil(this->d/laneWidth);
 }

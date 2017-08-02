@@ -14,21 +14,24 @@
 #define MIN_SPEED 10
 
 #define KL_ACC_COEFF 4.0
-#define KL_DIST_THR 30.0
+#define FORWARD_COLLISION_BUFFER 20.0
 
-#define MIN_TRACKING_CHANGE    -4.0
-#define MAX_TRACKING_CHANGE     4.0
+#define MIN_SPEED_VAR -4.0
+#define MAX_SPEED_VAR 4.0
 
-#define PATH_PLAN_SECONDS       2.5
-#define PATH_PLAN_INCREMENT     0.02
+#define PATH_HORIZON 2.5
+#define PATH_WP_PERIOD 0.02
 
-#define MAX_TRACK_S             6945.554
+#define MAX_TRACK_S 6945.554
 
-#define LANE_CHANGE_COST_SIDE_F 0.9
-#define LANE_CHANGE_COST_SIDE_R 0.5
-#define LANE_CHANGE_COST_AHEAD  1.0
+// Defines the coefficients to be applied in the cost computation functions;
+// KL_COST_FACTOR is the coefficient for the keep lane state; 
+// CL_COST_FACTOR_F and CL_COST_FACTOR_R are factors for change lane cost computation and refers to front (_F)
+// and rear (_R) distances to the cars in that lane
+#define KL_COST_FACTOR  1.0
+#define CL_COST_FACTOR_F 0.9
+#define CL_COST_FACTOR_R 0.5
 
-#define FORWARD_COLLISION_BUFFER 4.0
 
 using namespace std;
 
@@ -62,7 +65,6 @@ class PathPlanner{
     void ComputeNextTrajectory(string s);
     void UpdateMainVehicle(double x, double y, double s, double d, double yaw, double speed, 
                            vector<vector<double>> sensor_fusion);
-    void ComputeSensorFusion();
 
     /**********************************
     * Methods for best trajectory identification
@@ -72,8 +74,7 @@ class PathPlanner{
 								 double car_s, double car_d, double yaw);
     string ComputeMinCostState(telemetry t);
     double KLStateCost(telemetry t);
-    double CLLStateCost(telemetry t);
-    double CLRStateCost(telemetry t);
+    double CLStateCost(telemetry t, int lane);
 
     Path ComputeKLPath(telemetry t);
     Path ComputeCLLPath(telemetry t);

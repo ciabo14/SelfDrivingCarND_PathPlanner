@@ -45,13 +45,11 @@ int main() {
 	// The max s value before wrapping around the track back to 0
 	double max_s = 6945.554;
 
-	/*************************
+	/**************************
 	* Initialize the planner object with Lane width and number of lanes and with the map
-	*************************/
+	***************************/
 	cout << "---------- PLANNER INITIALIZATION ----------"<<endl;
-
 	PathPlanner planner = PathPlanner(LANE_WIDTH, NUM_LANES, HORIZON, UPDATE_TIMESTAMP);
-
 	planner.InitalizeMap(map_file_, max_s);
 
 	h.onMessage([&planner](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
@@ -109,8 +107,12 @@ int main() {
 					next_x_vals.push_back(roadMap.spline_x(car_last_s+(dist_inc*i)));
 					next_y_vals.push_back(roadMap.spline_y(car_last_s+(dist_inc*i))-6);
 				}*/
+				
+				// Compute next trajectory using the planner object
 				planner.ComputeNextTrajectory(s);
-				// TODO: define a path made up of (x,y) points that the car will visit sequentially every .02 seconds
+				
+				// Use the planned trajectory to pass to the simulator
+				
 				msgJson["next_x"] = planner.car.current_path.X;
 				msgJson["next_y"] = planner.car.current_path.Y;
 

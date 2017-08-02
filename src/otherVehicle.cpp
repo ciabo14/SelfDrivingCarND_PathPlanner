@@ -7,9 +7,9 @@
 #include "vehicle.h"
 #include "otherVehicle.h"
 
-/**
- * Initializes Vehicle object
- */
+/*********************************
+* Initializes Vehicle object
+*********************************/
 OtherVehicle::OtherVehicle() {}
 
 OtherVehicle::OtherVehicle(int id, double x, double y, double s, double d, double vx, double vy) 
@@ -21,6 +21,9 @@ OtherVehicle::OtherVehicle(int id, double x, double y, double s, double d, doubl
     this->vy = vy;
 }
 
+/*********************************
+* Update all the vehicle parameters. Respect to the base class, this function also update the vx and vy parameters
+*********************************/
 void OtherVehicle::UpdateOtherVehicleStatus(double x, double y, double s, double d, double vx, double vy){
     UpdateVehicleStatus(x, y, s, d);
     this->last_vx = this->vx;
