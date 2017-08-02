@@ -143,13 +143,19 @@ if (forward_dist != 0.0)
 return cost;
 ...
 ```
-On the other hand, for other lanes, we use for cost function a combination of both the distance with the car in front and with the car behind. This let us to prevent change of line when a car behind is too close.
+On the other hand, for other lanes, we use for cost function a combination of both the distance with the car in front and with the car behind. This let us to prevent change of line when a car behind is too close. 
+Note that the cost function for the change lane takes into consideration also the speed of the car behind. Infact, in case the car behind is driving slower than our car and is far at least as the distance defined by the *BACKWARD_COLLISION_BUFFER*, the cost component relative to this other vehicle is not considered.
 
 ```cpp
 ...
-if (forward_dist != 0.0 && backword_dist != 0.0)
-{
-    cost = CL_COST_FACTOR_F / forward_dist + CL_COST_FACTOR_R / backword_dist;
+// Compute the cost for the CL state using the relative coefficient
+if (forward_dist != 0.0 && backward_dist != 0.0)
+{	
+	cost = CL_COST_FACTOR_F / forward_dist;
+	// Does not consider the back vehicle in case it is going slower and is far more than the 
+	// BACKWARD_COLLISION_BUFFER distance
+	if(b_v > car.car_speed || backward_dist < BACKWARD_COLLISION_BUFFER)
+		cost += CL_COST_FACTOR_R / backward_dist;
 }
 return cost;
 ...

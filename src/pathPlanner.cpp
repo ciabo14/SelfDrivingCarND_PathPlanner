@@ -223,17 +223,24 @@ double PathPlanner::KLStateCost(telemetry t)
 ***************************/
 double PathPlanner::CLStateCost(telemetry t, int lane)
 {	
-	double cost = 100000;
+	double cost = 1e10;
 	OtherVehicle forward_vehicle, backward_vehicle;
 	double forward_dist, backward_dist;
 	// Compute current distance to vehicle in front and behind in the lane at left of the vehicle
 	DistanceToCarsInLane(lane, &forward_vehicle, &backward_vehicle,
 						&forward_dist, &backward_dist);
 
+	double f_v = ComputeCarSpeed(forward_vehicle);
+	double b_v = ComputeCarSpeed(backward_vehicle);
+
 	// Compute the cost for the CL state using the relative coefficient
 	if (forward_dist != 0.0 && backward_dist != 0.0)
 	{	
-		cost = CL_COST_FACTOR_F / forward_dist + CL_COST_FACTOR_R / backward_dist;
+		cost = CL_COST_FACTOR_F / forward_dist;
+		// Does not consider the back vehicle in case it is going slower and is far more than the 
+		// BACKWARD_COLLISION_BUFFER distance
+		if(b_v > car.car_speed || backward_dist < BACKWARD_COLLISION_BUFFER)
+			cost += CL_COST_FACTOR_R / backward_dist;
 	}
 	return cost;
 }

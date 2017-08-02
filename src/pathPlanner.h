@@ -15,6 +15,7 @@
 
 #define KL_ACC_COEFF 4.0
 #define FORWARD_COLLISION_BUFFER 20.0
+#define BACKWARD_COLLISION_BUFFER 10.0
 
 #define MIN_SPEED_VAR -4.0
 #define MAX_SPEED_VAR 4.0
@@ -29,7 +30,7 @@
 // CL_COST_FACTOR_F and CL_COST_FACTOR_R are factors for change lane cost computation and refers to front (_F)
 // and rear (_R) distances to the cars in that lane
 #define KL_COST_FACTOR  1.0
-#define CL_COST_FACTOR_F 0.9
+#define CL_COST_FACTOR_F 1.0
 #define CL_COST_FACTOR_R 0.5
 
 
