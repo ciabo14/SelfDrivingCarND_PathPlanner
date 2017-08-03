@@ -1,15 +1,5 @@
-#include <vector>
-#include <fstream>
-#include <math.h>
-#include <chrono>
-#include <iostream>
-#include <map>
 #include "json.hpp"
 #include "pathPlanner.h"
-#include "mainVehicle.h"
-#include "roadMap.h"
-#include "path.h"
-#include <utility>
 #include "Eigen-3.3/Eigen/Dense"
 
 // For converting back and forth between radians and degrees.
@@ -149,6 +139,11 @@ void PathPlanner::ComputeNextTrajectory(string s)
 		{
 			path_x.push_back(target_path.X[i]);
 			path_y.push_back(target_path.Y[i]);
+		}
+
+		for (int i = previous_path_x.size(); i < previous_path_x.size()+6; ++i) {
+			path_x[i] = path_x[i - 1] + (path_x[i + 1] - path_x[i]);
+			path_y[i] = path_y[i - 1] + (path_y[i + 1] - path_y[i]);
 		}
 		target_path.X = path_x;
 		target_path.Y = path_y;
@@ -384,8 +379,6 @@ double PathPlanner::ComputeCarSpeed(OtherVehicle v)
 	return mag_v;
 }
 
-
-
 /**************************
 * Compute the distance to the front and behind cars in a specified lane respect to the current car position
 **************************/
@@ -466,8 +459,8 @@ void PathPlanner::ComputeMinimumJerkPath(Path *p)
     }
 	p->X = next_x_vals;
     p->Y = next_y_vals;
-    p->last_s = next_s_vals[next_s_vals.size()-1];
-    p->last_d = next_d_vals[next_d_vals.size()-1];
+    p->s = next_s_vals;
+    p->d = next_d_vals;
 
 }
 
