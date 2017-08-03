@@ -225,15 +225,13 @@ The *ComputeMinimumJerk* and *ComputeMinimumJerkPath*, computes polinomio coeffi
 
 ## 2. Further impementations
 
-Other vehicles behavioud prediction: in order to make the min cost state computation finer, one way will be to include a logic to predict the behaviour of other cars from the sensor fusion data. Knowing which is the most probable maneuver from cars in the other lanes, could be helpful to prevent collision and to takes decision toword min cost (or faster reaching of the target).
+**Other vehicles behavioud prediction**: in order to make the min cost state computation finer, one way will be to include a logic to predict the behaviour of other cars from the sensor fusion data. Knowing which is the most probable maneuver from cars in the other lanes, could be helpful to prevent collision and to takes decision toword min cost (or faster reaching of the target).
 
-Other lanes rear vehicle understanding: current implementation includes in the cost function the presence of a car on the back of our self driving car in other lanes. This presence is weighted only with the distance from our car. Using something smarter like also considering the speed of this car behind, could help to decide to change lane in less time.  
+**Finest car speed adjustment for collision avoidance**: one way to made the collision avoidance smarter could be to compute the speed the car should have at the end of the computed trajectory, in order to arrive to have the same speed of the car in front with a fixed buffer distance.
 
-Finest car speed adjustment for collision avoidance: one way to made the collision avoidance smarter could be to compute the speed the car should have at the end of the computed trajectory, in order to arrive to have the same speed of the car in front with a fixed buffer distance.
+**Curve speed management**: reducing a little bit the speed in the curves could help to reduce the jerk of the trajectory;
 
-Curve speed management: reducing a little bit the speed in the curves could help to reduce the jerk of the trajectory;
-
-Lane change refinement: when a lane change is decided, could maybe be better to increase from the start the speed if the car was following the car in front for collision avoidance.
+**Lane change refinement**: when a lane change is decided, could maybe be better to increase from the start the speed if the car was following the car in front for collision avoidance.
 
 ## 3. Dependencies
 
